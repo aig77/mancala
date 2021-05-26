@@ -8,39 +8,42 @@ class Minimax:
         self.numberOfStates = 0
         self.depth = depth
 
-    def MinimaxDecision(self, state):
-        self.numberOfStates = 0
+    def minimaxDecision(self, state):
+        # player 1 is maximizing agent
+        # player 2 is minimizing agent
 
-        max_v = float('-inf')
+        # computer minimizes
+        min_v = float('inf')
         best_action = None
         for a in state.getActions():
-            v = self.MinValue(state.getResult(a), float('-inf'), float('inf'), self.depth)
-            if v > max_v:
+            v = self.minimax(state.getResult(a), self.depth, float('-inf'), float('inf'))
+            if v < min_v:
                 best_action = a
-                max_v = v
+                min_v = v
+
         return best_action
+                
 
-    def MinValue(self, state, alpha, beta, depth):
-        self.numberOfStates += 1
-
+    def minimax(self, state, depth, alpha, beta):
         if depth == 0 or state.isTerminal():
             return state.getUtility()
-        v = float('inf')
-        for a in state.getActions():
-            v = min(v, self.MaxValue(state.getResult(a), alpha, beta, depth - 1))
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-        return v
+        
+        if state.playerToMove == 1:
+            max_v = float('-inf')
+            for a in state.getActions():
+                v = self.minimax(state.getResult(a), depth-1, alpha, beta)
+                alpha = max(alpha, v)
+                if beta <= alpha:
+                    break
+            return max_v
 
-    def MaxValue(self, state, alpha, beta, depth):
-        self.numberOfStates += 1
-        if depth == 0 or state.isTerminal():
-            return state.getUtility()
-        v = float('-inf')
-        for a in state.getActions():
-            v = max(v, self.MinValue(state.getResult(a), alpha, beta, depth - 1))
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
-        return v
+        else:
+            min_v = float('inf')
+            for a in state.getActions():
+                v = self.minimax(state.getResult(a), depth-1, alpha, beta)
+                min_v = min(min_v, v)
+                beta = min(beta, v)
+                if beta <= alpha:
+                    break
+            return min_v
+            
